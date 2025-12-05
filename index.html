@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>铜 / 铝电缆重量计算器</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+    .app {
+      width: 100%;
+      max-width: 480px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 18px 16px 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 12px;
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 18px;
+    }
+    .row {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: #374151;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+    }
+    input[type="number"]:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px #2563eb33;
+    }
+    .hint {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+    .material-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .chip input {
+      margin-right: 4px;
+    }
+    .chip-active {
+      border-color: #2563eb;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 999px;
+      border: none;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 4px;
+      cursor: pointer;
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+      transition: transform 0.05s, box-shadow 0.05s, opacity 0.15s;
+    }
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+      opacity: 0.9;
+    }
+    .result-card {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      font-size: 14px;
+    }
+    .result-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4f46e5;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+    .result-row span:first-child {
+      color: #6b7280;
+    }
+    .result-main {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 4px;
+      text-align: right;
+    }
+    .small {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .footer {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="title">铜 / 铝电缆重量计算器</div>
+    <div class="subtitle">按照行业常用密度：铜 8.9 g/cm³、铝 2.7 g/cm³</div>
+
+    <div class="row">
+      <label for="area">截面积（mm²）</label>
+      <input id="area" type="number" inputmode="decimal" placeholder="例如：16、25、95" />
+      <div class="hint">只填单芯的截面积，例如 3×16 只填 16</div>
+    </div>
+
+    <div class="row">
+      <label for="length">长度（m）</label>
+      <input id="length" type="number" inputmode="decimal" placeholder="例如：100" />
+      <div class="hint">整盘电缆或估算长度，单位：米</div>
+    </div>
+
+    <div class="row">
+      <label>材质</label>
+      <div class="material-group" id="material-group">
+        <label class="chip chip-active">
+          <input type="radio" name="material" value="both" checked />
+          铜 + 铝 都算
+        </label>
+        <label class="chip">
+          <input type="radio" name="material" value="copper" />
+          只算铜
+        </label>
+        <label class="chip">
+          <input type="radio" name="material" value="aluminum" />
+          只算铝
+        </label>
+      </div>
+    </div>
+
+    <button class="btn" onclick="calculate()">计算重量</button>
+
+    <div id="result" class="result-card" style="display:none;"></div>
+
+    <div class="footer">
+      公式：重量(kg) ≈ 截面积(mm²) × 长度(m) × 系数<br />
+      铜系数 0.0089，铝系数 0.0027（行业常用估算）
+    </div>
+  </div>
+
+  <script>
+    function setChipActive() {
+      const group = document.getElementById("material-group");
+      const chips = group.querySelectorAll(".chip");
+      chips.forEach(chip => chip.classList.remove("chip-active"));
+      const checked = group.querySelector("input[name='material']:checked");
+      if (checked) {
+        checked.parentElement.classList.add("chip-active");
+      }
+    }
+
+    document.getElementById("material-group").addEventListener("change", setChipActive);
+
+    function formatNumber(value, digits) {
+      if (isNaN(value)) return "-";
+      return Number(value).toFixed(digits);
+    }
+
+    function calculate() {
+      const area = parseFloat(document.getElementById("area").value);
+      const length = parseFloat(document.getElementById("length").value);
+      const material = document.querySelector("input[name='material']:checked").value;
+
+      if (!area || area <= 0 || !length || length <= 0) {
+        alert("请先正确填写截面积和长度（必须大于 0）");
+        return;
+      }
+
+      // 行业常用近似系数
+      const kCu = 0.0089;  // 铜：kg / (mm²·m)
+      const kAl = 0.0027;  // 铝：kg / (mm²·m)
+
+      const perMeterCu = area * kCu;
+      const perMeterAl = area * kAl;
+
+      let totalCu = null;
+      let totalAl = null;
+
+      if (material === "copper" || material === "both") {
+        totalCu = perMeterCu * length;
+      }
+      if (material === "aluminum" || material === "both") {
+        totalAl = perMeterAl * length;
+      }
+
+      const resultDiv = document.getElementById("result");
+      let html = '<div class="result-title"><span>计算结果</span>';
+
+      if (material === "copper") {
+        html += '<span class="badge">只计算铜</span>';
+      } else if (material === "aluminum") {
+        html += '<span class="badge">只计算铝</span>';
+      } else {
+        html += '<span class="badge">铜 + 铝 对比</span>';
+      }
+      html += "</div>";
+
+      html += '<div class="result-row"><span>截面积</span><span>' + area + ' mm²</span></div>';
+      html += '<div class="result-row"><span>长度</span><span>' + length + ' m</span></div>';
+
+      if (material === "copper" || material === "both") {
+        html += '<div class="result-main">铜约：' + formatNumber(totalCu, 3) + ' kg</div>';
+        html += '<div class="result-row"><span>铜每米重量</span><span>' + formatNumber(perMeterCu, 4) + ' kg/m</span></div>';
+      }
+
+      if (material === "aluminum" || material === "both") {
+        html += '<div class="result-main">铝约：' + formatNumber(totalAl, 3) + ' kg</div>';
+        html += '<div class="result-row"><span>铝每米重量</span><span>' + formatNumber(perMeterAl, 4) + ' kg/m</span></div>';
+      }
+
+      html += '<div class="small">说明：为工程估算值，未考虑绞合空隙、护套、钢芯等，仅为金属芯重量近似。</div>';
+
+      resultDiv.innerHTML = html;
+      resultDiv.style.display = "block";
+    }
+  </script>
+</body>
+</html>
