@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>电缆比例快速计算</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+      background: #f2f4f8;
+      color: #333;
+    }
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      width: 100%;
+      max-width: 640px;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(15, 35, 95, 0.12);
+      padding: 26px 26px 22px;
+    }
+    .title {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .section {
+      border-radius: 18px;
+      border: 1px solid #e2e6f2;
+      background: #fafbff;
+      padding: 14px 14px 12px;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    td.label-cell {
+      width: 110px;
+      white-space: nowrap;
+      font-size: 14px;
+      padding: 6px 4px 6px 0;
+    }
+    td.input-cell {
+      padding: 6px 0 6px 4px;
+    }
+
+    .input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #d0d4e0;
+      font-size: 14px;
+      outline: none;
+    }
+    .input:focus {
+      border-color: #2764ff;
+      box-shadow: 0 0 0 2px rgba(39,100,255,0.12);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+    .btn-primary {
+      background: #2764ff;
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(39,100,255,0.45);
+    }
+    .btn-secondary {
+      background: #eef1f7;
+      color: #333;
+    }
+
+    .result {
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .num {
+      font-weight: 600;
+      color: #2764ff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="card">
+    <div class="title">电缆比例快速计算</div>
+
+    <!-- 高压电缆：每米比例 -->
+    <div class="section">
+      <div class="section-title">高压电缆：每米比例</div>
+
+      <table>
+        <tr>
+          <td class="label-cell">样品长度（m）</td>
+          <td class="input-cell"><input id="m_len" type="number" class="input" /></td>
+        </tr>
+        <tr>
+          <td class="label-cell">样品总芯数</td>
+          <td class="input-cell"><input id="m_totalCores" type="number" class="input" /></td>
+        </tr>
+        <tr>
+          <td class="label-cell">实际称重芯数</td>
+          <td class="input-cell"><input id="m_measuredCores" type="number" class="input" /></td>
+        </tr>
+        <tr>
+          <td class="label-cell">净重（斤）</td>
+          <td class="input-cell"><input id="m_net" type="number" class="input" /></td>
+        </tr>
+      </table>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn_per_meter">计算</button>
+        <button class="btn btn-secondary" id="btn_clear_meter">清空</button>
+      </div>
+
+      <div id="m_res1" class="result">每米净重：-</div>
+    </div>
+
+    <!-- 高压电缆：每斤比例 -->
+    <div class="section">
+      <div class="section-title">高压电缆：每斤比例</div>
+
+      <table>
+        <tr>
+          <td class="label-cell">样品毛重（斤）</td>
+          <td class="input-cell"><input id="jin_gross" type="number" class="input" /></td>
+        </tr>
+        <tr>
+          <td class="label-cell">样品总芯数</td>
+          <td class="input-cell"><input id="jin_totalCores" type="number" class="input" /></td>
+        </tr>
+        <tr>
+          <td class="label-cell">实际称重芯数</td>
+          <td class="input-cell"><input id="jin_measuredCores" type="number" class="input" /></td>
+        </tr>
+        <tr>
+          <td class="label-cell">净重（斤）</td>
+          <td class="input-cell"><input id="jin_net" type="number" class="input" /></td>
+        </tr>
+      </table>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn_per_jin">计算</button>
+        <button class="btn btn-secondary" id="btn_clear_jin">清空</button>
+      </div>
+
+      <div id="j_res1" class="result">比例（小数）：-</div>
+      <div id="j_res2" class="result">比例（百分比）：-</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function f(n, d) {
+    return isFinite(n) ? n.toFixed(d) : "-";
+  }
+
+  // 高压电缆：每米比例
+  document.getElementById("btn_per_meter").onclick = function () {
+    const L = parseFloat(document.getElementById("m_len").value);
+    const N_total = parseFloat(document.getElementById("m_totalCores").value);
+    const N_meas = parseFloat(document.getElementById("m_measuredCores").value);
+    const W_net = parseFloat(document.getElementById("m_net").value);
+
+    if (!L || !N_total || !N_meas || !W_net) {
+      alert("请把样品长度、总芯数、称重芯数、净重都填完整！");
+      return;
+    }
+    if (L <= 0 || N_total <= 0 || N_meas <= 0) {
+      alert("长度和芯数必须大于 0！");
+      return;
+    }
+
+    // 每米净重 = 净重 × (总芯数 / 称重芯数) ÷ 长度   （单位：斤/米）
+    const perMeter = W_net * (N_total / N_meas) / L;
+    document.getElementById("m_res1").innerHTML =
+      '每米净重：<span class="num">' + f(perMeter, 3) + "</span> 斤/米";
+  };
+
+  document.getElementById("btn_clear_meter").onclick = function () {
+    ["m_len","m_totalCores","m_measuredCores","m_net"].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+    document.getElementById("m_res1").textContent = "每米净重：-";
+  };
+
+  // 高压电缆：每斤比例
+  document.getElementById("btn_per_jin").onclick = function () {
+    const W_gross = parseFloat(document.getElementById("jin_gross").value);
+    const N_total = parseFloat(document.getElementById("jin_totalCores").value);
+    const N_meas = parseFloat(document.getElementById("jin_measuredCores").value);
+    const W_net = parseFloat(document.getElementById("jin_net").value);
+
+    if (!W_gross || !N_total || !N_meas || !W_net) {
+      alert("请把毛重、总芯数、称重芯数、净重都填完整！");
+      return;
+    }
+    if (W_gross <= 0 || N_total <= 0 || N_meas <= 0) {
+      alert("毛重和芯数必须大于 0！");
+      return;
+    }
+
+    // 样品全部芯的净重 = 已称净重 × (总芯数 / 称重芯数)
+    const W_allNet = W_net * (N_total / N_meas);
+
+    // 比例 = 样品全部芯净重 ÷ 毛重
+    const ratio = W_allNet / W_gross;
+    const pct = ratio * 100;
+
+    document.getElementById("j_res1").innerHTML =
+      '比例（小数）：<span class="num">' + f(ratio, 4) + "</span>";
+    document.getElementById("j_res2").innerHTML =
+      '比例（百分比）：<span class="num">' + f(pct, 2) + "</span>%";
+  };
+
+  document.getElementById("btn_clear_jin").onclick = function () {
+    ["jin_gross","jin_totalCores","jin_measuredCores","jin_net"].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+    document.getElementById("j_res1").textContent = "比例（小数）：-";
+    document.getElementById("j_res2").textContent = "比例（百分比）：-";
+  };
+</script>
+
+</body>
+</html>
