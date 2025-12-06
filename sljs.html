@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>含税价计算器 & 税率计算器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, "Microsoft Yahei", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .layout {
+      width: 100%;
+      max-width: 1120px;
+      margin: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .container {
+      background: #ffffff;
+      width: 100%;
+      max-width: 520px;
+      padding: 20px 18px 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      flex: 1 1 340px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input[type="number"],
+    input[readonly],
+    input[type="text"] {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    input[readonly] {
+      background-color: #f9f9f9;
+    }
+
+    .unit {
+      font-size: 13px;
+      color: #555;
+      white-space: nowrap;
+    }
+
+    .btn-row {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 8px 0;
+      font-size: 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-main {
+      background: #1677ff;
+      color: #fff;
+    }
+
+    .btn-reset {
+      background: #e5e5e5;
+      color: #333;
+    }
+
+    .group-title {
+      margin-top: 16px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #333;
+      border-top: 1px solid #eee;
+      padding-top: 8px;
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- 工具一：含税价计算器 -->
+  <div class="container">
+    <h1>含税价计算器</h1>
+
+    <!-- 输入区 -->
+    <div class="field">
+      <label for="amount">金额（一个具体数字）</label>
+      <div class="input-row">
+        <input id="amount" type="number" step="0.01" placeholder="请输入金额，例如 100" />
+        <span class="unit">元</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="rate">税率</label>
+      <div class="input-row">
+        <input id="rate" type="number" step="0.01" placeholder="例如：13 表示 13%" />
+        <span class="unit">%</span>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-main" id="btnCalc">计算</button>
+      <button class="btn-reset" id="btnReset">清空</button>
+    </div>
+
+    <!-- 一、税后价（金额视为税前价） -->
+    <div class="group-title">一、税后价：</div>
+
+    <div class="field">
+      <label for="pre_mode_pre">税前价</label>
+      <div class="input-row">
+        <input id="pre_mode_pre" type="text" readonly />
+        <span class="unit">元</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="pre_mode_tax">税额</label>
+      <div class="input-row">
+        <input id="pre_mode_tax" type="text" readonly />
+        <span class="unit">元</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="pre_mode_after">税后价（含税）</label>
+      <div class="input-row">
+        <input id="pre_mode_after" type="text" readonly />
+        <span class="unit">元</span>
+      </div>
+    </div>
+
+    <!-- 二、税前价（金额视为税后价） -->
+    <div class="group-title">二、税前价：</div>
+
+    <div class="field">
+      <label for="after_mode_after">税后价（含税）</label>
+      <div class="input-row">
+        <input id="after_mode_after" type="text" readonly />
+        <span class="unit">元</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="after_mode_pre">税前价</label>
+      <div class="input-row">
+        <input id="after_mode_pre" type="text" readonly />
+        <span class="unit">元</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="after_mode_tax">税额</label>
+      <div class="input-row">
+        <input id="after_mode_tax" type="text" readonly />
+        <span class="unit">元</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 工具二：税率计算器 -->
+  <div class="container">
+    <h1>税率计算器</h1>
+
+    <div class="field">
+      <label for="rate_pre_price">税前价（元）</label>
+      <div class="input-row">
+        <input id="rate_pre_price" type="number" step="0.01" placeholder="请输入税前价，例如 100" />
+        <span class="unit">元</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="rate_after_price">税后价（元）</label>
+      <div class="input-row">
+        <input id="rate_after_price" type="number" step="0.01" placeholder="请输入税后价，例如 110" />
+        <span class="unit">元</span>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-main" id="btnCalcRate">计算</button>
+      <button class="btn-reset" id="btnResetRate">清空</button>
+    </div>
+
+    <div class="field">
+      <label for="rate_result">税率（%）</label>
+      <div class="input-row">
+        <input id="rate_result" type="text" readonly />
+        <span class="unit">%</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // 公共格式化函数
+  function fmt(v) {
+    const n = Number(v);
+    if (isNaN(n)) return '';
+    return n.toFixed(2);
+  }
+
+  /* ------------ 工具一：含税价计算器 ------------ */
+  const amountInput = document.getElementById('amount');
+  const rateInput   = document.getElementById('rate');
+
+  // 上：金额视为税前价
+  const pre_mode_pre   = document.getElementById('pre_mode_pre');
+  const pre_mode_tax   = document.getElementById('pre_mode_tax');
+  const pre_mode_after = document.getElementById('pre_mode_after');
+
+  // 下：金额视为税后价
+  const after_mode_after = document.getElementById('after_mode_after');
+  const after_mode_pre   = document.getElementById('after_mode_pre');
+  const after_mode_tax   = document.getElementById('after_mode_tax');
+
+  const btnCalc  = document.getElementById('btnCalc');
+  const btnReset = document.getElementById('btnReset');
+
+  function clearResult1() {
+    pre_mode_pre.value   = '';
+    pre_mode_tax.value   = '';
+    pre_mode_after.value = '';
+
+    after_mode_after.value = '';
+    after_mode_pre.value   = '';
+    after_mode_tax.value   = '';
+  }
+
+  function calculate1() {
+    const amount = parseFloat(amountInput.value);
+    const rate   = parseFloat(rateInput.value);
+
+    if (isNaN(amount) || isNaN(rate)) {
+      alert('请输入完整的金额和税率。');
+      clearResult1();
+      return;
+    }
+
+    const r = rate / 100;
+    if (r < 0) {
+      alert('税率不能为负数。');
+      clearResult1();
+      return;
+    }
+
+    // 一、税后价：金额视为税前价
+    const pre1  = amount;
+    const tax1  = pre1 * r;
+    const after1 = pre1 + tax1;
+
+    pre_mode_pre.value   = fmt(pre1);
+    pre_mode_tax.value   = fmt(tax1);
+    pre_mode_after.value = fmt(after1);
+
+    // 二、税前价：金额视为税后价
+    const after2 = amount;
+    let pre2, tax2;
+    if (r === 0) {
+      pre2 = after2;
+      tax2 = 0;
+    } else {
+      pre2 = after2 / (1 + r);
+      tax2 = after2 - pre2;
+    }
+
+    after_mode_after.value = fmt(after2);
+    after_mode_pre.value   = fmt(pre2);
+    after_mode_tax.value   = fmt(tax2);
+  }
+
+  btnCalc.addEventListener('click', calculate1);
+  btnReset.addEventListener('click', () => {
+    amountInput.value = '';
+    rateInput.value   = '';
+    clearResult1();
+  });
+  amountInput.addEventListener('input', clearResult1);
+  rateInput.addEventListener('input', clearResult1);
+
+  /* ------------ 工具二：税率计算器 ------------ */
+  const ratePreInput    = document.getElementById('rate_pre_price');
+  const rateAfterInput  = document.getElementById('rate_after_price');
+  const rateResultInput = document.getElementById('rate_result');
+
+  const btnCalcRate  = document.getElementById('btnCalcRate');
+  const btnResetRate = document.getElementById('btnResetRate');
+
+  function clearResult2() {
+    ratePreInput.value    = '';
+    rateAfterInput.value  = '';
+    rateResultInput.value = '';
+  }
+
+  function calculate2() {
+    const pre  = parseFloat(ratePreInput.value);
+    const aft  = parseFloat(rateAfterInput.value);
+
+    if (isNaN(pre) || isNaN(aft)) {
+      alert('请输入完整的税前价和税后价。');
+      clearResult2();
+      return;
+    }
+    if (pre === 0) {
+      alert('税前价不能为 0。');
+      clearResult2();
+      return;
+    }
+
+    const rate = (aft - pre) / pre * 100;
+    rateResultInput.value = fmt(rate);
+  }
+
+  btnCalcRate.addEventListener('click', calculate2);
+  btnResetRate.addEventListener('click', clearResult2);
+</script>
+</body>
+</html>
