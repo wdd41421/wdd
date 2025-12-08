@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>水钻出孔角度与偏移计算</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: #f3f3f3;
+        }
+        .box {
+            max-width: 480px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 14px;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        label {
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px 8px;
+            font-size: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        input:focus {
+            border-color: #409eff;
+            outline: none;
+        }
+        .btns {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin: 12px 0;
+        }
+        button {
+            min-width: 90px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .calc {
+            background: #409eff;
+            color: white;
+        }
+        .clear {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .result {
+            background: #f0f7ff;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+        }
+        .line {
+            margin-bottom: 6px;
+        }
+        .value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .tip {
+            font-size: 12px;
+            color: #666;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>水钻出孔定位计算</h2>
+
+    <div class="row">
+        <label>出孔与水平孔的垂直距离 A（mm）</label>
+        <input id="A" type="number" step="0.1">
+    </div>
+
+    <div class="row">
+        <label>墙厚 B（mm）</label>
+        <input id="B" type="number" step="1">
+    </div>
+
+    <div class="row">
+        <label>水钻长度 C（mm）</label>
+        <input id="C" type="number" step="1" value="600">
+    </div>
+
+    <div class="btns">
+        <button class="calc" onclick="calc()">计算</button>
+        <button class="clear" onclick="resetForm()">清空</button>
+    </div>
+
+    <div class="result">
+        <div class="line">
+            尾部垂直偏移距离 D：
+            <span class="value" id="D">--</span> mm
+        </div>
+        <div class="line">
+            水钻水平投影长度 L：
+            <span class="value" id="L">--</span> mm
+        </div>
+        <div class="line">
+            夹角 θ（以水平穿孔方向为 0°）：
+            <span class="value" id="theta">--</span> °
+        </div>
+        <div class="tip">
+            用法：<br>
+            1）为钻尾到钻进点水平面的垂直距离；<br>
+            2）为水钻方向在水平线上的总投影长度；<br>
+            3）为钻杆到钻进点水平面的夹角；
+        </div>
+    </div>
+</div>
+
+<script>
+function calc() {
+    var A = parseFloat(document.getElementById("A").value);
+    var B = parseFloat(document.getElementById("B").value);
+    var C = parseFloat(document.getElementById("C").value);
+
+    if (isNaN(A) || isNaN(B) || isNaN(C) || A === 0 || B === 0 || C === 0) {
+        alert("请正确填写 A、B、C（不能为 0）");
+        return;
+    }
+
+    // 公共项
+    var denom = Math.sqrt(A*A + B*B);
+
+    // 夹角 θ = atan(A / B)
+    var thetaRad = Math.atan(A / B);
+    var thetaDeg = thetaRad * 180 / Math.PI;
+
+    // 尾部偏移 D = C * A / sqrt(A^2 + B^2)
+    var D = C * A / denom;
+
+    // 水平方向投影长度 L = C * B / sqrt(A^2 + B^2)
+    var L = C * B / denom;
+
+    document.getElementById("theta").innerText = thetaDeg.toFixed(2);
+    document.getElementById("D").innerText = D.toFixed(1);
+    document.getElementById("L").innerText = L.toFixed(1);
+}
+
+function resetForm() {
+    document.getElementById("A").value = "";
+    document.getElementById("B").value = "";
+    document.getElementById("C").value = "600";
+    document.getElementById("theta").innerText = "--";
+    document.getElementById("D").innerText = "--";
+    document.getElementById("L").innerText = "--";
+}
+</script>
+
+</body>
+</html>
