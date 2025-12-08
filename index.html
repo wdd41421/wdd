@@ -5,6 +5,7 @@
     <title>wdd 工具导航</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+        * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                          "Helvetica Neue", Arial, "Noto Sans", sans-serif;
@@ -12,81 +13,170 @@
             padding: 0;
             background: #f5f5f5;
         }
-        .container {
-            max-width: 600px;
-            margin: 60px auto;
+        .page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .card {
+            max-width: 720px;
+            width: 100%;
             background: #ffffff;
-            padding: 30px 25px 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 16px;
+            padding: 32px 24px 32px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
             text-align: center;
         }
-        h1 {
-            margin-bottom: 20px;
+        .title {
+            margin: 0 0 24px;
             font-size: 26px;
+            font-weight: 700;
         }
+
         .nav-list {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 25px;
+            flex-direction: column;   /* 一列布局 */
+            gap: 16px;
+            margin: 0;
+            padding: 0;
         }
         .nav-item a {
             display: block;
             padding: 14px 16px;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 12px;
             background: #ffffff;
-            border: 1px solid #d0d0d0;
+            border: 1px solid #e0d2ff;
             font-size: 17px;
-            transition: 0.2s;
+            color: #5b21b6;
+            transition: 0.18s;
         }
         .nav-item a:hover {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
+            background: #f5f3ff;
+            border-color: #7c3aed;
+            box-shadow: 0 6px 16px rgba(124,58,237,0.18);
+            transform: translateY(-1px);
         }
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #888;
+
+        .hidden { display: none; }
+
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .top-row h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .back-btn {
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        .back-btn:hover {
+            color: #111827;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>wdd 工具导航</h1>
-    <p>请选择要打开的工具：</p>
+<div class="page">
+    <div class="card">
+        <h1 class="title">wdd 工具导航</h1>
 
-    <!-- 这里是自动生成按钮的容器 -->
-    <div class="nav-list" id="tool-list"></div>
+        <!-- 一级菜单：大分类 -->
+        <div id="main-menu" class="nav-list"></div>
 
-    <div class="footer">以后新增工具，只需要在下方脚本里加一行即可。</div>
+        <!-- 二级菜单：某个分类下的条目 -->
+        <div id="sub-section" class="hidden">
+            <div class="top-row">
+                <button id="back-btn" class="back-btn">← 返回</button>
+                <h2 id="cat-title"></h2>
+                <span style="width:60px;"></span> <!-- 占位让标题居中 -->
+            </div>
+            <div id="sub-menu" class="nav-list"></div>
+        </div>
+    </div>
 </div>
 
 <script>
-    // ✅ 所有工具只在这里配置
-    const tools = [
-        { name: "比例计算工具", file: "bljs.html" },
-        { name: "废品电缆米重", file: "fpdl.html" },
-        { name: "税率计算工具", file: "sljs.html" }
-        // ✅ 以后新增工具，例如：
-        // { name: "钢绞线工具", file: "gjx.html" },
+    // 一级 & 二级菜单配置，只改这里
+    const menuConfig = [
+        {
+            id: "tools",
+            label: "计算工具",
+            items: [
+                { label: "比例计算工具", href: "bljs.html" },
+                { label: "废品电缆米重", href: "fpdl.html" },
+                { label: "税率计算工具", href: "sljs.html" }
+            ]
+        },
+        {
+            id: "links",
+            label: "网址导航",
+            items: [
+                { label: "GitHub", href: "https://github.com/" },
+                { label: "百度", href: "https://www.baidu.com/" }
+            ]
+        }
     ];
 
-    const list = document.getElementById("tool-list");
+    const mainMenuEl = document.getElementById("main-menu");
+    const subSectionEl = document.getElementById("sub-section");
+    const subMenuEl = document.getElementById("sub-menu");
+    const catTitleEl = document.getElementById("cat-title");
+    const backBtn = document.getElementById("back-btn");
 
-    tools.forEach(tool => {
-        const div = document.createElement("div");
-        div.className = "nav-item";
+    // 渲染一级菜单
+    function renderMain() {
+        mainMenuEl.innerHTML = "";
+        menuConfig.forEach(cat => {
+            const div = document.createElement("div");
+            div.className = "nav-item";
+            const a = document.createElement("a");
+            a.textContent = cat.label;
+            a.href = "javascript:void(0)";
+            a.onclick = () => openCategory(cat.id);
+            div.appendChild(a);
+            mainMenuEl.appendChild(div);
+        });
+        mainMenuEl.classList.remove("hidden");
+        subSectionEl.classList.add("hidden");
+    }
 
-        const a = document.createElement("a");
-        a.href = tool.file;
-        a.textContent = tool.name;
+    // 打开某个分类（二级菜单）
+    function openCategory(id) {
+        const cat = menuConfig.find(c => c.id === id);
+        if (!cat) return;
 
-        div.appendChild(a);
-        list.appendChild(div);
-    });
+        catTitleEl.textContent = cat.label;
+        subMenuEl.innerHTML = "";
+
+        cat.items.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "nav-item";
+            const a = document.createElement("a");
+            a.textContent = item.label;
+            a.href = item.href;
+            div.appendChild(a);
+            subMenuEl.appendChild(div);
+        });
+
+        mainMenuEl.classList.add("hidden");
+        subSectionEl.classList.remove("hidden");
+    }
+
+    backBtn.onclick = renderMain;
+
+    // 初始化：先显示一级菜单
+    renderMain();
 </script>
 </body>
 </html>
