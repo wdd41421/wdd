@@ -37,7 +37,7 @@
         }
         textarea[readonly] {
             background: #f8f8f8;
-            resize: none; /* 结果框交给 JS 自动调高度 */
+            resize: none; /* 结果框高度用 JS 自动调 */
         }
         .label {
             margin-top: 8px;
@@ -103,12 +103,13 @@
         • 支持 9 行 × 9 位 或 1 行 81 位输入<br>
         • 0 表示空格（未知数）<br>
         • 自动检测非法题目<br>
-        • 结果每 3 行自动分组显示，并标注解的数量
+        • 判断：无解 / 唯一解 / 多解（至少 2 个解）<br>
+        • 结果每 3 行自动分组显示，并显示解题用时
     </div>
 </div>
 
 <script>
-    // 自动根据内容调整 textarea 高度（解决手机上不能手动拉伸的问题）
+    // 自动根据内容调整 textarea 高度
     function autoResize(el) {
         if (!el) return;
         el.style.height = 'auto';
@@ -125,6 +126,7 @@
         let grid = [];
         let lines = text.split(/\n+/).map(l => l.trim()).filter(l => l.length > 0);
 
+        // 单行 81 位模式
         if (lines.length === 1) {
             const s = lines[0];
             if (s.length !== 81) {
@@ -139,7 +141,9 @@
                     grid[r][c] = parseInt(ch);
                 }
             }
-        } else if (lines.length === 9) {
+        }
+        // 9 行 9 位模式
+        else if (lines.length === 9) {
             for (let r = 0; r < 9; r++) {
                 if (lines[r].length !== 9) return null;
                 grid[r] = [];
@@ -157,6 +161,7 @@
         return isInitialValid(grid) ? grid : null;
     }
 
+    // 初始题目合法性检查：行/列/宫不能有冲突
     function isInitialValid(grid) {
         for (let r = 0; r < 9; r++) {
             for (let c = 0; c < 9; c++) {
@@ -165,6 +170,7 @@
                 grid[r][c] = 0;
                 if (!isValid(grid, r, c, num)) {
                     alert("题目存在冲突！");
+                    grid[r][c] = num;
                     return false;
                 }
                 grid[r][c] = num;
@@ -173,6 +179,7 @@
         return true;
     }
 
+    // 简单合法性判断（用于初检）
     function isValid(grid, row, col, num) {
         for (let i = 0; i < 9; i++) {
             if (grid[row][i] === num || grid[i][col] === num) return false;
@@ -187,64 +194,121 @@
         return true;
     }
 
-    // 回溯：统计解的数量，并保存第一个解
-    function solveAndCount(grid, maxSolutions) {
-        let count = 0;
-        let firstSolution = null;
-        let stop = false;
+    // 高速求解 + 判断是否唯一解：MRV + 位运算
+    function solveAndCheckUnique(grid) {
+        const rows = new Array(9).fill(0);
+        const cols = new Array(9).fill(0);
+        const boxes = new Array(9).fill(0);
+        const empties = [];
 
-        function backtrack() {
-            if (stop) return;
+        function boxIndex(r, c) {
+            return (r / 3 | 0) * 3 + (c / 3 | 0);
+        }
 
-            // 找下一个空格
-            let row = -1, col = -1;
-            for (let r = 0; r < 9; r++) {
-                for (let c = 0; c < 9; c++) {
-                    if (grid[r][c] === 0) {
-                        row = r;
-                        col = c;
-                        break;
-                    }
-                }
-                if (row !== -1) break;
-            }
-
-            // 没有空格——得到一个完整解
-            if (row === -1) {
-                count++;
-                if (!firstSolution) {
-                    // 深拷贝保存第一个解，用于展示
-                    firstSolution = grid.map(row => row.slice());
-                }
-                if (count >= maxSolutions) {
-                    stop = true;
-                }
-                return;
-            }
-
-            for (let num = 1; num <= 9; num++) {
-                if (isValid(grid, row, col, num)) {
-                    grid[row][col] = num;
-                    backtrack();
-                    if (stop) {
-                        grid[row][col] = 0;
-                        return;
-                    }
-                    grid[row][col] = 0;
+        // 初始化 bit 掩码和空格列表
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                const v = grid[r][c];
+                if (v === 0) {
+                    empties.push({ r, c });
+                } else {
+                    const bit = 1 << v;
+                    const b = boxIndex(r, c);
+                    rows[r] |= bit;
+                    cols[c] |= bit;
+                    boxes[b] |= bit;
                 }
             }
         }
 
+        function bitCount(x) {
+            let cnt = 0;
+            while (x) {
+                x &= (x - 1);
+                cnt++;
+            }
+            return cnt;
+        }
+
+        let solutions = 0;
+        let firstSolution = null;
+        let multiple = false;
+
+        function backtrack() {
+            if (multiple) return;
+
+            // 选一个候选数最少的空格（MRV）
+            let bestIdx = -1;
+            let bestMask = 0;
+            let minCount = 10;
+
+            for (let i = 0; i < empties.length; i++) {
+                const { r, c } = empties[i];
+                if (grid[r][c] !== 0) continue;
+
+                const b = boxIndex(r, c);
+                const used = rows[r] | cols[c] | boxes[b];
+                let candMask = (~used) & 0x3FE; // 只保留 1~9 位（0b11_1111_1110）
+
+                const cnt = bitCount(candMask);
+                if (cnt === 0) {
+                    return; // 死路
+                }
+                if (cnt < minCount) {
+                    minCount = cnt;
+                    bestIdx = i;
+                    bestMask = candMask;
+                    if (cnt === 1) break; // 已经最优，不用再找
+                }
+            }
+
+            // 没有空格了，说明找到一个完整解
+            if (bestIdx === -1) {
+                solutions++;
+                if (!firstSolution) {
+                    firstSolution = grid.map(row => row.slice());
+                }
+                if (solutions >= 2) {
+                    multiple = true; // 至少 2 个解，非唯一
+                }
+                return;
+            }
+
+            const { r, c } = empties[bestIdx];
+            const b = boxIndex(r, c);
+
+            // 遍历候选数字（根据 bestMask）
+            for (let num = 1; num <= 9; num++) {
+                const bit = 1 << num;
+                if ((bestMask & bit) === 0) continue;
+
+                grid[r][c] = num;
+                rows[r] |= bit;
+                cols[c] |= bit;
+                boxes[b] |= bit;
+
+                backtrack();
+
+                grid[r][c] = 0;
+                rows[r] &= ~bit;
+                cols[c] &= ~bit;
+                boxes[b] &= ~bit;
+
+                if (multiple) return;
+            }
+        }
+
         backtrack();
+
         return {
-            count: count,
+            count: solutions,
             solution: firstSolution,
-            reachedLimit: count >= maxSolutions
+            multiple: multiple
         };
     }
 
-    // 输出：带序号 + 3×3 分组 + 解的数量说明
-    function writeOutput(grid, count, reachedLimit) {
+    // 输出：带序号 + 3×3 分组 + 解的情况 + 用时
+    function writeOutput(grid, count, multiple, msUsed) {
         let lines = [];
 
         for (let r = 0; r < 9; r++) {
@@ -262,21 +326,22 @@
             }
         }
 
-        lines.push(""); // 和上面的结果隔一行
+        lines.push(""); // 与正文隔一行
 
         let msg = "";
         if (count === 0) {
-            msg = "解的数量：无解";
-        } else if (count === 1) {
-            msg = "解的数量：唯一解（共 1 个）";
+            msg = "解的情况：无解";
+        } else if (count === 1 && !multiple) {
+            msg = "解的情况：唯一解";
+        } else if (multiple && count >= 2) {
+            msg = "解的情况：多解（至少 2 个解，非唯一解）";
         } else {
-            if (reachedLimit) {
-                msg = "解的数量：至少 " + count + " 个解（已达到统计上限，可能还有更多）";
-            } else {
-                msg = "解的数量：共 " + count + " 个解";
-            }
+            msg = "解的情况：至少 " + count + " 个解";
         }
         lines.push(msg);
+
+        const seconds = (msUsed / 1000).toFixed(3);
+        lines.push("用时：" + seconds + " 秒");
 
         const output = document.getElementById('outputArea');
         output.value = lines.join("\n");
@@ -289,19 +354,21 @@
 
         const copy = grid.map(row => row.slice());
 
-        const MAX_SOLUTIONS = 2000; // 统计上限，防止极端多解题目太慢
-        const result = solveAndCount(copy, MAX_SOLUTIONS);
+        const t0 = performance.now();
+        const result = solveAndCheckUnique(copy);
+        const t1 = performance.now();
+        const used = t1 - t0;
 
         const output = document.getElementById('outputArea');
 
         if (result.count === 0 || !result.solution) {
-            alert("此题无解！");
+            alert("此题无解（在搜索范围内未找到任何解）");
             output.value = "";
             autoResize(output);
             return;
         }
 
-        writeOutput(result.solution, result.count, result.reachedLimit);
+        writeOutput(result.solution, result.count, result.multiple, used);
     });
 
     document.getElementById('clearBtn').addEventListener('click', function () {
