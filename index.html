@@ -46,6 +46,11 @@
             color: white;
             border-color: #007bff;
         }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
@@ -53,23 +58,35 @@
     <h1>wdd 工具导航</h1>
     <p>请选择要打开的工具：</p>
 
-    <div class="nav-list">
+    <!-- 这里是自动生成按钮的容器 -->
+    <div class="nav-list" id="tool-list"></div>
 
-        <div class="nav-item">
-            <a href="bljs.html">比例计算工具</a>
-        </div>
-
-        <div class="nav-item">
-            <a href="fpdl.html">废品电缆米重</a>
-        </div>
-
-        <div class="nav-item">
-            <a href="sljs.html">税率计算工具</a>
-        </div>
-
-    </div>
+    <div class="footer">以后新增工具，只需要在下方脚本里加一行即可。</div>
 </div>
+
+<script>
+    // ✅ 所有工具只在这里配置
+    const tools = [
+        { name: "比例计算工具", file: "bljs.html" },
+        { name: "废品电缆米重", file: "fpdl.html" },
+        { name: "税率计算工具", file: "sljs.html" }
+        // ✅ 以后新增工具，例如：
+        // { name: "钢绞线工具", file: "gjx.html" },
+    ];
+
+    const list = document.getElementById("tool-list");
+
+    tools.forEach(tool => {
+        const div = document.createElement("div");
+        div.className = "nav-item";
+
+        const a = document.createElement("a");
+        a.href = tool.file;
+        a.textContent = tool.name;
+
+        div.appendChild(a);
+        list.appendChild(div);
+    });
+</script>
 </body>
 </html>
-
-
