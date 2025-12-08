@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>工地 - 主食配置</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body{
+            font-family: "Microsoft YaHei", sans-serif;
+            padding: 6px;
+        }
+        h2{
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        table{
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td{
+            border: 1px solid #ccc;
+            padding: 2px 2px;   /* ✅ 行距压缩 */
+            text-align: center;
+            font-size: 13px;   /* ✅ 字体缩小 */
+        }
+        th{
+            background: #f5f5f5;
+        }
+        input{
+            width: 42px;      /* ✅ 输入框缩窄 */
+            padding: 1px;
+            font-size: 13px;
+            text-align: center;
+        }
+        tfoot td{
+            font-weight: bold;
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+
+<h2>工地 - 主食配置（单位：斤）</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th style="width:60px">项目</th>
+        <th style="width:45px">人数</th>
+        <th style="width:70px">定量</th>
+        <th style="width:70px">总量</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>压面</td>
+        <td><input type="number" id="ym_count" oninput="recalc()"></td>
+        <td><input type="number" id="ym_unit" value="0.63" step="0.01" oninput="recalc()"></td>
+        <td><input type="text" id="ym_total" readonly></td>
+    </tr>
+    <tr>
+        <td>刀削面</td>
+        <td><input type="number" id="dxm_count" oninput="recalc()"></td>
+        <td><input type="number" id="dxm_unit" value="0.63" step="0.01" oninput="recalc()"></td>
+        <td><input type="text" id="dxm_total" readonly></td>
+    </tr>
+    <tr>
+        <td>炉面</td>
+        <td><input type="number" id="lm_count" oninput="recalc()"></td>
+        <td><input type="number" id="lm_unit" value="0.63" step="0.01" oninput="recalc()"></td>
+        <td><input type="text" id="lm_total" readonly></td>
+    </tr>
+    <tr>
+        <td>炒饼</td>
+        <td><input type="number" id="cb_count" oninput="recalc()"></td>
+        <td><input type="number" id="cb_unit" value="0.63" step="0.01" oninput="recalc()"></td>
+        <td><input type="text" id="cb_total" readonly></td>
+    </tr>
+    <tr>
+        <td>饺子</td>
+        <td><input type="number" id="jz_count" oninput="recalc()"></td>
+        <td><input type="number" id="jz_unit" value="1" step="0.01" oninput="recalc()"></td>
+        <td><input type="text" id="jz_total" readonly></td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="3">总计</td>
+        <td><input type="text" id="grand_total" readonly></td>
+    </tr>
+    </tfoot>
+</table>
+
+<script>
+function calcRow(p) {
+    var n = parseFloat(document.getElementById(p+"_count").value) || 0;
+    var u = parseFloat(document.getElementById(p+"_unit").value) || 0;
+    var t = n * u;
+    document.getElementById(p+"_total").value = t ? t.toFixed(2) : "";
+    return t;
+}
+
+function recalc() {
+    var sum =
+        calcRow("ym") +
+        calcRow("dxm") +
+        calcRow("lm") +
+        calcRow("cb") +
+        calcRow("jz");
+    document.getElementById("grand_total").value = sum ? sum.toFixed(2) : "";
+}
+</script>
+
+</body>
+</html>
