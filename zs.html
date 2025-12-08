@@ -20,7 +20,7 @@
         }
         th, td{
             border: 1px solid #ccc;
-            padding: 4px 2px;   /* 行距适中 */
+            padding: 4px 2px;
             text-align: center;
             font-size: 13px;
         }
@@ -28,24 +28,33 @@
             background: #f5f5f5;
         }
 
-        /* ✅ 全部压缩列宽 */
-        th.col-item   { width: 42px; }  /* 项目继续变窄 */
-        th.col-small  { width: 45px; }  /* 人数/定量/总量统一 */
+        /* ✅ 极限压缩列宽 */
+        th.col-item   { width: 42px; }
+        th.col-small  { width: 45px; }
 
         input{
-            width: 40px;      /* 输入框也同步压缩 */
+            width: 40px;
             padding: 1px;
             font-size: 13px;
             text-align: center;
         }
 
+        /* ✅ 放大 & 美化清空按钮 */
         .btn-area{
-            margin-top: 8px;
-            text-align: right;
+            margin-top: 12px;
+            text-align: center;
         }
         button{
-            padding: 4px 10px;
-            font-size: 13px;
+            width: 90%;
+            height: 42px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: none;
+            background: #ff4d4f;
+            color: #fff;
+        }
+        button:active{
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -72,67 +81,4 @@
     <tr>
         <td>刀削面</td>
         <td><input type="number" id="dxm_count" oninput="recalc()"></td>
-        <td><input type="number" id="dxm_unit" value="0.63" step="0.01" oninput="recalc()"></td>
-        <td><input type="text"   id="dxm_total" readonly></td>
-    </tr>
-    <tr>
-        <td>炉面</td>
-        <td><input type="number" id="lm_count" oninput="recalc()"></td>
-        <td><input type="number" id="lm_unit" value="0.63" step="0.01" oninput="recalc()"></td>
-        <td><input type="text"   id="lm_total" readonly></td>
-    </tr>
-    <tr>
-        <td>炒饼</td>
-        <td><input type="number" id="cb_count" oninput="recalc()"></td>
-        <td><input type="number" id="cb_unit" value="0.63" step="0.01" oninput="recalc()"></td>
-        <td><input type="text"   id="cb_total" readonly></td>
-    </tr>
-    <tr>
-        <td>饺子</td>
-        <td><input type="number" id="jz_count" oninput="recalc()"></td>
-        <td><input type="number" id="jz_unit" value="1" step="0.01" oninput="recalc()"></td>
-        <td><input type="text"   id="jz_total" readonly></td>
-    </tr>
-    </tbody>
-</table>
-
-<div class="btn-area">
-    <button type="button" onclick="clearAll()">清空</button>
-</div>
-
-<script>
-function calcRow(p) {
-    var n = parseFloat(document.getElementById(p+"_count").value) || 0;
-    var u = parseFloat(document.getElementById(p+"_unit").value)  || 0;
-    var t = n * u;
-    document.getElementById(p+"_total").value = t ? t.toFixed(2) : "";
-}
-
-function recalc() {
-    calcRow("ym");
-    calcRow("dxm");
-    calcRow("lm");
-    calcRow("cb");
-    calcRow("jz");
-}
-
-function clearAll() {
-    var rows = ["ym","dxm","lm","cb","jz"];
-    for (var i=0;i<rows.length;i++){
-        document.getElementById(rows[i]+"_count").value = "";
-        document.getElementById(rows[i]+"_total").value = "";
-    }
-
-    // ✅ 定量恢复默认
-    document.getElementById("ym_unit").value  = "0.63";
-    document.getElementById("dxm_unit").value = "0.63";
-    document.getElementById("lm_unit").value  = "0.63";
-    document.getElementById("cb_unit").value  = "0.63";
-    document.getElementById("jz_unit").value  = "1";
-
-    recalc();
-}
-</script>
-
-</body>
-</html>
+        <td><input type="number" id="dxm_unit" value="0.63" step="0.0_
