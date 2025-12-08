@@ -1,506 +1,73 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>wdd 工具导航</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    :root {
-      --bg: #0f172a;
-      --bg-card: #111827;
-      --bg-card-hover: #1f2937;
-      --border: #1f2937;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.15);
-      --text-main: #e5e7eb;
-      --text-sub: #9ca3af;
-      --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
-      --radius-lg: 18px;
-      --radius-xl: 24px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-        "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: radial-gradient(circle at top, #1e293b 0, #020617 55%, #000 100%);
-      color: var(--text-main);
-    }
-
-    .page {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 24px 14px 40px;
-    }
-
-    @media (min-width: 768px) {
-      .page {
-        padding: 32px 24px 48px;
-      }
-    }
-
-    .top-card {
-      background: linear-gradient(135deg, #020617 0%, #020617 40%, #0f172a 100%);
-      border-radius: var(--radius-xl);
-      padding: 22px 18px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      box-shadow: var(--shadow);
-      margin-bottom: 26px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    @media (min-width: 768px) {
-      .top-card {
-        padding: 28px 26px;
-      }
-    }
-
-    .top-card::before {
-      content: "";
-      position: absolute;
-      right: -60px;
-      top: -60px;
-      width: 180px;
-      height: 180px;
-      background: radial-gradient(circle, rgba(56, 189, 248, 0.32), transparent 70%);
-      opacity: 0.9;
-      filter: blur(1px);
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      background: rgba(15, 23, 42, 0.85);
-      color: var(--text-sub);
-      margin-bottom: 10px;
-      backdrop-filter: blur(8px);
-    }
-    .badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
-    }
-
-    .title {
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      margin: 0 0 8px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 8px;
-    }
-
-    @media (min-width: 768px) {
-      .title {
-        font-size: 30px;
-      }
-    }
-
-    .title span.accent {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--accent);
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-    }
-
-    .subtitle {
-      margin: 0;
-      color: var(--text-sub);
-      font-size: 13px;
-      line-height: 1.6;
-      max-width: 560px;
-    }
-
-    .subtitle-rows {
-      margin-top: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px 16px;
-      font-size: 12px;
-      color: var(--text-sub);
-    }
-    .subtitle-rows span {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(51, 65, 85, 0.8);
-    }
-
-    .subtitle-rows span::before {
-      content: "•";
-      font-size: 14px;
-      color: var(--accent);
-      margin-top: -1px;
-    }
-
-    .grid-title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 12px;
-      margin-top: 18px;
-    }
-
-    .grid-title-row h2 {
-      margin: 0;
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #9ca3af;
-    }
-
-    .grid-title-row span {
-      font-size: 12px;
-      color: #6b7280;
-    }
-
-    .tool-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-
-    @media (min-width: 640px) {
-      .tool-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (min-width: 960px) {
-      .tool-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-    }
-
-    .tool-card {
-      position: relative;
-      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), transparent 60%),
-                  var(--bg-card);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      padding: 14px 13px 14px;
-      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.75);
-      transition: transform 0.16s ease-out, box-shadow 0.16s ease-out,
-        border-color 0.16s ease-out, background 0.16s ease-out;
-      cursor: pointer;
-      overflow: hidden;
-    }
-
-    .tool-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(56, 189, 248, 0.8);
-      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.24), transparent 70%),
-                  var(--bg-card-hover);
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
-    }
-
-    .tool-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #9ca3af;
-      margin-bottom: 6px;
-    }
-
-    .tool-name {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .tool-name span.flag {
-      font-size: 11px;
-      font-weight: 500;
-      padding: 1px 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      color: #9ca3af;
-    }
-
-    .tool-desc {
-      font-size: 12px;
-      color: var(--text-sub);
-      line-height: 1.5;
-      margin-bottom: 10px;
-      min-height: 36px;
-    }
-
-    .tool-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
-
-    .pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .pill {
-      padding: 2px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(55, 65, 81, 0.9);
-      background: rgba(15, 23, 42, 0.95);
-    }
-
-    .btn-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-open {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: none;
-      outline: none;
-      font-size: 12px;
-      font-weight: 500;
-      text-decoration: none;
-      color: #020617;
-      background: linear-gradient(135deg, #38bdf8, #22c55e);
-      box-shadow: 0 8px 18px rgba(56, 189, 248, 0.45);
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .btn-open span.icon {
-      font-size: 14px;
-      margin-left: 2px;
-    }
-
-    .tip-text {
-      font-size: 11px;
-      color: #9ca3af;
-      opacity: 0.85;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .btn-open:active {
-      transform: translateY(1px);
-      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.5);
-    }
-
-    .section {
-      margin-top: 26px;
-      padding: 12px 14px 14px;
-      border-radius: 18px;
-      border: 1px dashed rgba(75, 85, 99, 0.9);
-      background: rgba(15, 23, 42, 0.88);
-      font-size: 12px;
-      color: #9ca3af;
-    }
-
-    .section-title {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: #e5e7eb;
-    }
-
-    .footer {
-      margin-top: 18px;
-      font-size: 11px;
-      color: #6b7280;
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>wdd 工具导航</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                         "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 60px auto;
+            background: #ffffff;
+            padding: 30px 25px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 26px;
+        }
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .nav-item a {
+            display: block;
+            padding: 14px 16px;
+            text-decoration: none;
+            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid #d0d0d0;
+            font-size: 17px;
+            transition: 0.2s;
+        }
+        .nav-item a:hover {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+    </style>
 </head>
 <body>
-  <div class="page">
-    <!-- 顶部介绍卡片 -->
-    <section class="top-card">
-      <div class="badge">
-        <span class="badge-dot"></span>
-        <span>自用小工具 · 本地体验版</span>
-      </div>
-      <h1 class="title">
-        wdd 多功能工具站
-        <span class="accent">电缆 · 计价 · 比例 · 逐步扩展中</span>
-      </h1>
-      <p class="subtitle">
-        把日常用到的各种小计算工具集中到一个入口，手机 / 电脑都能直接打开使用。
-        后续可以继续增加数独、钢绞线速查表、税务小工具等模块。
-      </p>
-      <div class="subtitle-rows">
-        <span>无需安装 · 浏览器直接使用</span>
-        <span>为自己定制的“私人小工具库”</span>
-        <span>后期可加“仅自己可见”的隐藏入口</span>
-      </div>
-    </section>
+<div class="container">
+    <h1>wdd 工具导航</h1>
+    <p>请选择要打开的工具：</p>
 
-    <!-- 工具网格 -->
-    <div class="grid-title-row">
-      <h2>TOOLS · 已上线工具</h2>
-      <span>点击卡片右下角按钮即可打开</span>
+    <div class="nav-list">
+
+        <div class="nav-item">
+            <a href="bljs.html">比例计算工具（bljs）</a>
+        </div>
+
+        <div class="nav-item">
+            <a href="fpdl.html">分配电流工具（fpdl）</a>
+        </div>
+
+        <div class="nav-item">
+            <a href="sljs.html">税率计算工具（sljs）</a>
+        </div>
+
     </div>
-
-    <section class="tool-grid">
-      <!-- 电缆比例 -->
-      <article class="tool-card" onclick="location.href='bljs.html'">
-        <div class="tool-label">电缆 / 比例</div>
-        <div class="tool-name">
-          电缆比例快速计算
-          <span class="flag">高压线专用</span>
-        </div>
-        <p class="tool-desc">
-          已知样品长度和称重数据，快速算出高压电缆的每米净重、
-          以及“每斤长度比例”，适合现场估算整盘电缆重量 / 长度。
-        </p>
-        <div class="tool-meta">
-          <div class="pill-row">
-            <span class="pill">支持多芯电缆</span>
-            <span class="pill">按斤 / 每米互算</span>
-          </div>
-          <span>v1.0</span>
-        </div>
-        <div class="btn-row">
-          <a class="btn-open" href="bljs.html">
-            打开工具
-            <span class="icon">↗</span>
-          </a>
-          <div class="tip-text">推荐：现场取样后立即计算</div>
-        </div>
-      </article>
-
-      <!-- 废品铜 / 铝电缆 -->
-      <article class="tool-card" onclick="location.href='fpdl.html'">
-        <div class="tool-label">废品 / 报价</div>
-        <div class="tool-name">
-          废品铜 / 铝电缆计算器
-          <span class="flag">报废 / 回收</span>
-        </div>
-        <p class="tool-desc">
-          输入截面积、长度、单价和材质（铜 / 铝），自动估算出
-          理论重量和总价，便于和废品站 / 回收报价快速对比。
-        </p>
-        <div class="tool-meta">
-          <div class="pill-row">
-            <span class="pill">铜 / 铝一键切换</span>
-            <span class="pill">适合谈价前预估</span>
-          </div>
-          <span>v1.0</span>
-        </div>
-        <div class="btn-row">
-          <a class="btn-open" href="fpdl.html">
-            打开工具
-            <span class="icon">↗</span>
-          </a>
-          <div class="tip-text">支持常见平方数电缆估算</div>
-        </div>
-      </article>
-
-      <!-- 含税价 / 税率计算 -->
-      <article class="tool-card" onclick="location.href='sljs.html'">
-        <div class="tool-label">金额 / 税率</div>
-        <div class="tool-name">
-          含税价计算器 &amp; 税率计算器
-          <span class="flag">财务小工具</span>
-        </div>
-        <p class="tool-desc">
-          已知税前价求税后价、已知含税价倒推税前价，
-          以及根据税前 / 税后反推真实税率，
-          适合开票、比价、核对对方报价是否合理。
-        </p>
-        <div class="tool-meta">
-          <div class="pill-row">
-            <span class="pill">支持增值税场景</span>
-            <span class="pill">无小数也能算</span>
-          </div>
-          <span>v1.1</span>
-        </div>
-        <div class="btn-row">
-          <a class="btn-open" href="sljs.html">
-            打开工具
-            <span class="icon">↗</span>
-          </a>
-          <div class="tip-text">建议配合实际税率逐项核算</div>
-        </div>
-      </article>
-
-      <!-- 预留：以后新增工具示例（你可以改成别的） -->
-      <article class="tool-card" onclick="alert('这个工具还在规划中，可以之后再补上对应的 HTML 页面。');">
-        <div class="tool-label">规划中</div>
-        <div class="tool-name">
-          钢绞线米重速查 &amp; 比例工具
-          <span class="flag">计划中</span>
-        </div>
-        <p class="tool-desc">
-          计划做一个“钢绞线 / 钢丝绳”快速查表 + 比例计算工具，
-          输入重量或长度，快速推算平方数或单价。
-        </p>
-        <div class="tool-meta">
-          <div class="pill-row">
-            <span class="pill">速查常用规格</span>
-            <span class="pill">支持按斤 / 米互算</span>
-          </div>
-          <span>设计中</span>
-        </div>
-        <div class="btn-row">
-          <button class="btn-open" type="button">
-            敬请期待
-          </button>
-          <div class="tip-text">等你哪天有空，我们再一起做</div>
-        </div>
-      </article>
-    </section>
-
-    <!-- 说明区域：给自己看的小字 -->
-    <section class="section">
-      <div class="section-title">使用说明（给自己看的备注）</div>
-      <div>
-        <ul style="margin: 6px 0 4px 18px; padding: 0;">
-          <li>所有工具都是纯前端 HTML + JS，本地浏览器执行，不依赖服务器。</li>
-          <li>以后新加工具，只需要：
-            <br>① 在仓库里新建一个 <code>xxx.html</code>；
-            <br>② 回到本页，在上面的网格里复制一块 <code>&lt;article&gt;</code>，改成对应名字和链接即可。
-          </li>
-          <li>如果有“只给自己用”的工具，可以不在这里放链接，或者做一个“隐藏入口”（比如只有输入特定密码才显示）。</li>
-        </ul>
-      </div>
-    </section>
-
-    <div class="footer">
-      © <span id="year"></span> wdd · Private Toolbox
-    </div>
-  </div>
-
-  <script>
-    // 自动填当前年份
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+</div>
 </body>
 </html>
