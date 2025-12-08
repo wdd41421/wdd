@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>数独解题器（粘贴版）</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 20px;
+            text-align: center;
+            margin: 0 0 12px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 140px;
+            resize: vertical;
+            font-size: 16px;
+            line-height: 1.6;
+            padding: 8px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        textarea[readonly] {
+            background: #f8f8f8;
+        }
+        .label {
+            margin-top: 8px;
+            margin-bottom: 4px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 4px;
+        }
+        button {
+            flex: 1;
+            padding: 8px 0;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+        #solveBtn {
+            background: #007bff;
+            color: #ffffff;
+        }
+        #clearBtn {
+            background: #dddddd;
+        }
+        .note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>数独解题器（粘贴版）</h1>
+
+    <div class="label">输入题目（0 代表空格）</div>
+    <textarea id="inputArea" placeholder="示例：
+001200034
+000005600
+470000050
+010320000
+800007060
+094000070
+000800006
+502009007
+007000100"></textarea>
+
+    <div class="btn-row">
+        <button id="solveBtn">解题</button>
+        <button id="clearBtn">清空</button>
+    </div>
+
+    <div class="label">解题结果（每 3 行一组）</div>
+    <textarea id="outputArea" readonly placeholder="解出的结果会显示在这里"></textarea>
+
+    <div class="note">
+        说明：<br>
+        • 支持 9 行 × 9 位 或 1 行 81 位输入<br>
+        • 0 表示空格（未知数）<br>
+        • 自动检测非法题目<br>
+        • 结果每 3 行自动分组显示
+    </div>
+</div>
+
+<script>
+    function parseInput() {
+        const text = document.getElementById('inputArea').value.trim();
+        if (!text) {
+            alert("请输入题目（0 代表空格）");
+            return null;
+        }
+
+        let grid = [];
+        let lines = text.split(/\n+/).map(l => l.trim()).filter(l => l.length > 0);
+
+        if (lines.length === 1) {
+            const s = lines[0];
+            if (s.length !== 81) {
+                alert("单行模式必须是 81 个数字。");
+                return null;
+            }
+            for (let r = 0; r < 9; r++) {
+                grid[r] = [];
+                for (let c = 0; c < 9; c++) {
+                    const ch = s[r * 9 + c];
+                    if (!/[0-9]/.test(ch)) return null;
+                    grid[r][c] = parseInt(ch);
+                }
+            }
+        } else if (lines.length === 9) {
+            for (let r = 0; r < 9; r++) {
+                if (lines[r].length !== 9) return null;
+                grid[r] = [];
+                for (let c = 0; c < 9; c++) {
+                    const ch = lines[r][c];
+                    if (!/[0-9]/.test(ch)) return null;
+                    grid[r][c] = parseInt(ch);
+                }
+            }
+        } else {
+            alert("请输入 9 行或 1 行 81 位数字。");
+            return null;
+        }
+
+        return isInitialValid(grid) ? grid : null;
+    }
+
+    function isInitialValid(grid) {
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                const num = grid[r][c];
+                if (num === 0) continue;
+                grid[r][c] = 0;
+                if (!isValid(grid, r, c, num)) {
+                    alert("题目存在冲突！");
+                    return false;
+                }
+                grid[r][c] = num;
+            }
+        }
+        return true;
+    }
+
+    function isValid(grid, row, col, num) {
+        for (let i = 0; i < 9; i++) {
+            if (grid[row][i] === num || grid[i][col] === num) return false;
+        }
+        const sr = Math.floor(row / 3) * 3;
+        const sc = Math.floor(col / 3) * 3;
+        for (let r = 0; r < 3; r++) {
+            for (let c = 0; c < 3; c++) {
+                if (grid[sr + r][sc + c] === num) return false;
+            }
+        }
+        return true;
+    }
+
+    function solveSudoku(grid) {
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                if (grid[r][c] === 0) {
+                    for (let num = 1; num <= 9; num++) {
+                        if (isValid(grid, r, c, num)) {
+                            grid[r][c] = num;
+                            if (solveSudoku(grid)) return true;
+                            grid[r][c] = 0;
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // ✅ 重点：每 3 行自动空一行
+    function writeOutput(grid) {
+        let lines = [];
+        for (let r = 0; r < 9; r++) {
+            let rowStr = "";
+            for (let c = 0; c < 9; c++) {
+                rowStr += grid[r][c];
+            }
+            lines.push(rowStr);
+
+            if ((r + 1) % 3 === 0 && r !== 8) {
+                lines.push("");
+            }
+        }
+        document.getElementById('outputArea').value = lines.join("\n");
+    }
+
+    document.getElementById('solveBtn').addEventListener('click', function () {
+        const grid = parseInput();
+        if (!grid) return;
+
+        const copy = grid.map(row => row.slice());
+        if (!solveSudoku(copy)) {
+            alert("此题无解！");
+            return;
+        }
+        writeOutput(copy);
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', function () {
+        document.getElementById('inputArea').value = "";
+        document.getElementById('outputArea').value = "";
+    });
+</script>
+</body>
+</html>
