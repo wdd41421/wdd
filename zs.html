@@ -1,84 +1,129 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>工地 - 主食配置</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body{
-            font-family: "Microsoft YaHei", sans-serif;
-            padding: 6px;
-        }
-        h2{
-            text-align: center;
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-        table{
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td{
-            border: 1px solid #ccc;
-            padding: 4px 2px;
-            text-align: center;
-            font-size: 13px;
-        }
-        th{
-            background: #f5f5f5;
-        }
-
-        /* ✅ 极限压缩列宽 */
-        th.col-item   { width: 42px; }
-        th.col-small  { width: 45px; }
-
-        input{
-            width: 40px;
-            padding: 1px;
-            font-size: 13px;
-            text-align: center;
-        }
-
-        /* ✅ 放大 & 美化清空按钮 */
-        .btn-area{
-            margin-top: 12px;
-            text-align: center;
-        }
-        button{
-            width: 90%;
-            height: 42px;
-            font-size: 16px;
-            border-radius: 10px;
-            border: none;
-            background: #ff4d4f;
-            color: #fff;
-        }
-        button:active{
-            opacity: 0.7;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>工地 - 主食配置</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{
+    font-family: "Microsoft YaHei", sans-serif;
+    padding: 10px;
+}
+h2{
+    text-align: center;
+    margin-bottom: 10px;
+}
+table{
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td{
+    border: 1px solid #ccc;
+    padding: 6px 4px;
+    text-align: center;
+    font-size: 14px;
+}
+th{
+    background: #f5f5f5;
+}
+input{
+    width: 50px;
+    text-align: center;
+}
+.btn-area{
+    margin-top: 15px;
+    text-align: center;
+}
+button{
+    width: 90%;
+    height: 40px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    background: #1677ff;   /* ✅ 已改成蓝色 */
+    color: #fff;
+}
+button:active{opacity:0.7;}
+</style>
 </head>
+
 <body>
 
 <h2>工地 - 主食配置（单位：斤）</h2>
 
 <table>
-    <thead>
-    <tr>
-        <th class="col-item">项目</th>
-        <th class="col-small">人数</th>
-        <th class="col-small">定量</th>
-        <th class="col-small">总量</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>压面</td>
-        <td><input type="number" id="ym_count" oninput="recalc()"></td>
-        <td><input type="number" id="ym_unit" value="0.63" step="0.01" oninput="recalc()"></td>
-        <td><input type="text"   id="ym_total" readonly></td>
-    </tr>
-    <tr>
-        <td>刀削面</td>
-        <td><input type="number" id="dxm_count" oninput="recalc()"></td>
-        <td><input type="number" id="dxm_unit" value="0.63" step="0.0_
+<thead>
+<tr>
+    <th>项目</th>
+    <th>人数</th>
+    <th>定量</th>
+    <th>总量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+    <td>压面</td>
+    <td><input id="ym_n" oninput="calc()"></td>
+    <td><input id="ym_d" value="0.63" oninput="calc()"></td>
+    <td><input id="ym_t" readonly></td>
+</tr>
+<tr>
+    <td>刀削面</td>
+    <td><input id="dxm_n" oninput="calc()"></td>
+    <td><input id="dxm_d" value="0.63" oninput="calc()"></td>
+    <td><input id="dxm_t" readonly></td>
+</tr>
+<tr>
+    <td>炉面</td>
+    <td><input id="lm_n" oninput="calc()"></td>
+    <td><input id="lm_d" value="0.63" oninput="calc()"></td>
+    <td><input id="lm_t" readonly></td>
+</tr>
+<tr>
+    <td>炒饼</td>
+    <td><input id="cb_n" oninput="calc()"></td>
+    <td><input id="cb_d" value="0.63" oninput="calc()"></td>
+    <td><input id="cb_t" readonly></td>
+</tr>
+<tr>
+    <td>饺子</td>
+    <td><input id="jz_n" oninput="calc()"></td>
+    <td><input id="jz_d" value="1" oninput="calc()"></td>
+    <td><input id="jz_t" readonly></td>
+</tr>
+</tbody>
+</table>
+
+<div class="btn-area">
+    <button onclick="clearAll()">清 空</button>
+</div>
+
+<script>
+function calc(){
+    func("ym");
+    func("dxm");
+    func("lm");
+    func("cb");
+    func("jz");
+}
+function func(p){
+    let n = parseFloat(document.getElementById(p+"_n").value) || 0;
+    let d = parseFloat(document.getElementById(p+"_d").value) || 0;
+    document.getElementById(p+"_t").value = n*d ? (n*d).toFixed(2) : "";
+}
+function clearAll(){
+    let arr=["ym","dxm","lm","cb","jz"];
+    arr.forEach(function(p){
+        document.getElementById(p+"_n").value="";
+        document.getElementById(p+"_t").value="";
+    });
+    document.getElementById("ym_d").value="0.63";
+    document.getElementById("dxm_d").value="0.63";
+    document.getElementById("lm_d").value="0.63";
+    document.getElementById("cb_d").value="0.63";
+    document.getElementById("jz_d").value="1";
+}
+</script>
+
+</body>
+</html>
