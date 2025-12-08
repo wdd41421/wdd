@@ -20,22 +20,32 @@
         }
         th, td{
             border: 1px solid #ccc;
-            padding: 2px 2px;   /* ✅ 行距压缩 */
+            padding: 4px 2px;   /* 行距适中 */
             text-align: center;
-            font-size: 13px;   /* ✅ 字体缩小 */
+            font-size: 13px;
         }
         th{
             background: #f5f5f5;
         }
+
+        /* ✅ 全部压缩列宽 */
+        th.col-item   { width: 42px; }  /* 项目继续变窄 */
+        th.col-small  { width: 45px; }  /* 人数/定量/总量统一 */
+
         input{
-            width: 42px;      /* ✅ 输入框缩窄 */
+            width: 40px;      /* 输入框也同步压缩 */
             padding: 1px;
             font-size: 13px;
             text-align: center;
         }
-        tfoot td{
-            font-weight: bold;
-            background: #fafafa;
+
+        .btn-area{
+            margin-top: 8px;
+            text-align: right;
+        }
+        button{
+            padding: 4px 10px;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -46,10 +56,10 @@
 <table>
     <thead>
     <tr>
-        <th style="width:60px">项目</th>
-        <th style="width:45px">人数</th>
-        <th style="width:70px">定量</th>
-        <th style="width:70px">总量</th>
+        <th class="col-item">项目</th>
+        <th class="col-small">人数</th>
+        <th class="col-small">定量</th>
+        <th class="col-small">总量</th>
     </tr>
     </thead>
     <tbody>
@@ -57,58 +67,70 @@
         <td>压面</td>
         <td><input type="number" id="ym_count" oninput="recalc()"></td>
         <td><input type="number" id="ym_unit" value="0.63" step="0.01" oninput="recalc()"></td>
-        <td><input type="text" id="ym_total" readonly></td>
+        <td><input type="text"   id="ym_total" readonly></td>
     </tr>
     <tr>
         <td>刀削面</td>
         <td><input type="number" id="dxm_count" oninput="recalc()"></td>
         <td><input type="number" id="dxm_unit" value="0.63" step="0.01" oninput="recalc()"></td>
-        <td><input type="text" id="dxm_total" readonly></td>
+        <td><input type="text"   id="dxm_total" readonly></td>
     </tr>
     <tr>
         <td>炉面</td>
         <td><input type="number" id="lm_count" oninput="recalc()"></td>
         <td><input type="number" id="lm_unit" value="0.63" step="0.01" oninput="recalc()"></td>
-        <td><input type="text" id="lm_total" readonly></td>
+        <td><input type="text"   id="lm_total" readonly></td>
     </tr>
     <tr>
         <td>炒饼</td>
         <td><input type="number" id="cb_count" oninput="recalc()"></td>
         <td><input type="number" id="cb_unit" value="0.63" step="0.01" oninput="recalc()"></td>
-        <td><input type="text" id="cb_total" readonly></td>
+        <td><input type="text"   id="cb_total" readonly></td>
     </tr>
     <tr>
         <td>饺子</td>
         <td><input type="number" id="jz_count" oninput="recalc()"></td>
         <td><input type="number" id="jz_unit" value="1" step="0.01" oninput="recalc()"></td>
-        <td><input type="text" id="jz_total" readonly></td>
+        <td><input type="text"   id="jz_total" readonly></td>
     </tr>
     </tbody>
-    <tfoot>
-    <tr>
-        <td colspan="3">总计</td>
-        <td><input type="text" id="grand_total" readonly></td>
-    </tr>
-    </tfoot>
 </table>
+
+<div class="btn-area">
+    <button type="button" onclick="clearAll()">清空</button>
+</div>
 
 <script>
 function calcRow(p) {
     var n = parseFloat(document.getElementById(p+"_count").value) || 0;
-    var u = parseFloat(document.getElementById(p+"_unit").value) || 0;
+    var u = parseFloat(document.getElementById(p+"_unit").value)  || 0;
     var t = n * u;
     document.getElementById(p+"_total").value = t ? t.toFixed(2) : "";
-    return t;
 }
 
 function recalc() {
-    var sum =
-        calcRow("ym") +
-        calcRow("dxm") +
-        calcRow("lm") +
-        calcRow("cb") +
-        calcRow("jz");
-    document.getElementById("grand_total").value = sum ? sum.toFixed(2) : "";
+    calcRow("ym");
+    calcRow("dxm");
+    calcRow("lm");
+    calcRow("cb");
+    calcRow("jz");
+}
+
+function clearAll() {
+    var rows = ["ym","dxm","lm","cb","jz"];
+    for (var i=0;i<rows.length;i++){
+        document.getElementById(rows[i]+"_count").value = "";
+        document.getElementById(rows[i]+"_total").value = "";
+    }
+
+    // ✅ 定量恢复默认
+    document.getElementById("ym_unit").value  = "0.63";
+    document.getElementById("dxm_unit").value = "0.63";
+    document.getElementById("lm_unit").value  = "0.63";
+    document.getElementById("cb_unit").value  = "0.63";
+    document.getElementById("jz_unit").value  = "1";
+
+    recalc();
 }
 </script>
 
