@@ -99,7 +99,7 @@
             <div class="top-row">
                 <button id="back-btn" class="back-btn">← 返回</button>
                 <h2 id="cat-title"></h2>
-                <span style="width:60px;"></span> <!-- 占位让标题居中 -->
+                <span style="width:60px;"></span>
             </div>
             <div id="sub-menu" class="nav-list"></div>
         </div>
@@ -128,11 +128,11 @@
         }
     ];
 
-    const mainMenuEl = document.getElementById("main-menu");
+    const mainMenuEl   = document.getElementById("main-menu");
     const subSectionEl = document.getElementById("sub-section");
-    const subMenuEl = document.getElementById("sub-menu");
-    const catTitleEl = document.getElementById("cat-title");
-    const backBtn = document.getElementById("back-btn");
+    const subMenuEl    = document.getElementById("sub-menu");
+    const catTitleEl   = document.getElementById("cat-title");
+    const backBtn      = document.getElementById("back-btn");
 
     // 渲染一级菜单
     function renderMain() {
@@ -174,6 +174,35 @@
     }
 
     backBtn.onclick = renderMain;
+
+    // ====== 手机右滑返回上一级 ======
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.addEventListener("touchstart", function (e) {
+        if (e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+        }
+    }, { passive: true });
+
+    document.addEventListener("touchend", function (e) {
+        if (e.changedTouches.length === 1) {
+            touchEndX = e.changedTouches[0].clientX;
+            handleSwipe();
+        }
+    }, { passive: true });
+
+    function handleSwipe() {
+        const distance = touchEndX - touchStartX;
+
+        // 右滑超过 80px 且从左侧 80px 内开始
+        if (distance > 80 && touchStartX < 80) {
+            // 只有在二级菜单页面时才返回
+            if (!subSectionEl.classList.contains("hidden")) {
+                renderMain();
+            }
+        }
+    }
 
     // 初始化：先显示一级菜单
     renderMain();
